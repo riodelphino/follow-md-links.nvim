@@ -138,9 +138,12 @@ local function follow_local_link(link)
 end
 
 local function follow_heading_link(link)
-	link = link:gsub("-", "[- ]*")
-	link = link:gsub("_", "[_ ]*")
-	vim.fn.search("\\c^#\\+ *" .. link, 'ew')
+   local symbols = '[' .. [[ ,.<>/?!;:(){}@#$%^&*+_="'\\\|%%-]] .. '\\[\\]]'
+   -- set {symbol} / only [] should be outside of [[]], like \\[\\].
+   link = link:gsub("and", "\\(&\\|and\\)") -- 'and' --> '&', 'and'
+   link = link:gsub("[-_]", symbols .. "*") -- '-', '_' --> {symbols}
+   local search = "\\c^#\\+\\s*" .. link .. symbols .. "*$" -- link may have {symbol} at the end.
+   vim.fn.search(search, 'ew')
 end
 
 local M = {}
